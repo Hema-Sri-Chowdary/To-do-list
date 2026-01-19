@@ -62,16 +62,9 @@ app.use('/api/tasks', taskRoutes);
 app.use(express.static(path.join(__dirname)));
 
 // Serve index.html for any other route (SPA styling)
-// app.get('*', (req, res) => {
-//     // Check if request is for API
-//     if (req.path.startsWith('/api')) {
-//         return res.status(404).json({
-//             success: false,
-//             message: 'API Route not found'
-//         });
-//     }
-//     res.sendFile(path.join(__dirname, 'index.html'));
-// });
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // 404 handler (handled by * route above for pages, but keep for API safety if logic changes)
 // Use specific middleware for /api/* 404s if needed, but generic catch-all above handles most.
