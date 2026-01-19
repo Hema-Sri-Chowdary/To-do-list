@@ -293,6 +293,11 @@ function setupSignupOTPInputs() {
 async function handleForgotPassword(e) {
     e.preventDefault();
 
+    const otpSection = document.getElementById('otp-section');
+    if (otpSection && otpSection.style.display !== 'none') {
+        return;
+    }
+
     const email = document.getElementById('forgot-email').value;
 
     try {
@@ -323,74 +328,72 @@ async function handleForgotPassword(e) {
 function setupOTPVerification(email) {
     const otpInputs = document.querySelectorAll('.otp-input');
 
-    // When all OTP digits are entered
-    otpInputs[3].addEventListener('input', async function () {
-        if (this.value.length === 1) {
-            // Collect OTP
-            const otp = Array.from(otpInputs).map(input => input.value).join('');
+    const triggerVerification = () => {
+        const otp = Array.from(otpInputs).map(input => input.value).join('');
 
-            if (otp.length === 4) {
-                // Remove prompt, use custom flow or just a simple input fix
-                // For now, since we don't have a prompt modal, we'll assume the user
-                // should have entered the password differently, but to fix this FAST:
-                // We will use a standard modal to ask for password or just a second form step.
-                // Simpler: Show modal asking for new password is hard without input.
-                // BETTER FIX: Show a new screen or use a specific modal with input.
-                // Given constraints, I'll allow the user to enter password in a new hidden input 
-                // that appears after OTP, OR just use `prompt` replacement which we don't have.
+        if (otp.length === 4) {
+            let passwordInput = document.getElementById('new-password-input');
+            if (!passwordInput) {
+                const otpSection = document.getElementById('otp-section');
+                const passDiv = document.createElement('div');
+                passDiv.className = 'input-wrapper';
+                passDiv.style.marginTop = '20px';
+                passDiv.innerHTML = '<input type="password" id="new-password-input" placeholder="Enter new password" required style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px;">';
+                otpSection.appendChild(passDiv);
 
-                // Let's modify the flow: 
-                // 1. Verify OTP first.
-                // 2. If valid, show "New Password" screen/form.
-
-                // For this quick fix, I will inject a password input into the DOM dynamically
-                // inside the OTP section or show a modal with input.
-                // Since `showModal` doesn't support input, I'll append a password field to the form
-                // after OTP is entered.
-
-                let passwordInput = document.getElementById('new-password-input');
-                if (!passwordInput) {
-                    const otpSection = document.getElementById('otp-section');
-                    const passDiv = document.createElement('div');
-                    passDiv.className = 'input-wrapper';
-                    passDiv.style.marginTop = '20px';
-                    passDiv.innerHTML = '<input type="password" id="new-password-input" placeholder="Enter new password" required style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px;">';
-                    otpSection.appendChild(passDiv);
-
-                    const submitBtn = document.createElement('button');
-                    submitBtn.type = 'button'; // Prevent form submit
-                    submitBtn.className = 'btn-primary';
-                    submitBtn.style.marginTop = '10px';
-                    submitBtn.textContent = 'Reset Password';
-                    submitBtn.onclick = async () => {
-                        const newPassword = document.getElementById('new-password-input').value;
-                        if (newPassword && newPassword.length >= 6) {
-                            try {
-                                await apiRequest('/auth/reset-password', {
-                                    method: 'POST',
-                                    body: JSON.stringify({ email, otp, newPassword })
-                                });
-                                showModal('Success', 'Password reset successful! Please login.', () => {
-                                    sessionStorage.removeItem('resetEmail');
-                                    showScreen('login-screen');
-                                });
-                            } catch (error) {
-                                showModal('Error', 'Password reset failed: ' + error.message);
-                            }
-                        } else {
-                            showModal('Invalid Password', 'Password must be at least 6 characters');
+                const submitBtn = document.createElement('button');
+                submitBtn.type = 'button'; // Prevent form submit
+                submitBtn.className = 'btn-primary';
+                submitBtn.style.marginTop = '10px';
+                submitBtn.textContent = 'Reset Password';
+                submitBtn.onclick = async () => {
+                    const newPassword = document.getElementById('new-password-input').value;
+                    if (newPassword && newPassword.length >= 6) {
+                        try {
+                            await apiRequest('/auth/reset-password', {
+                                method: 'POST',
+                                body: JSON.stringify({ email, otp, newPassword })
+                            });
+                            showModal('Success', 'Password reset successful! Please login.', () => {
+                                sessionStorage.removeItem('resetEmail');
+                                showScreen('login-screen');
+                            });
+                        } catch (error) {
+                            showModal('Error', 'Password reset failed: ' + error.message);
                         }
-                    };
-                    otpSection.appendChild(submitBtn);
+                    } else {
+                        showModal('Invalid Password', 'Password must be at least 6 characters');
+                    }
+                };
+                otpSection.appendChild(submitBtn);
 
-                    // Hide original "Send OTP" button if visible (it submitted the form)
-                    const sendOtpBtn = document.querySelector('#forgot-password-form button[type="submit"]');
-                    if (sendOtpBtn) sendOtpBtn.style.display = 'none';
+                // Hide original "Send OTP" button if visible (it submitted the form)
+                const sendOtpBtn = document.querySelector('#forgot-password-form button[type="submit"]');
+                if (sendOtpBtn) sendOtpBtn.style.display = 'none';
 
-                    document.getElementById('new-password-input').focus();
-                }
+                document.getElementById('new-password-input').focus();
             }
         }
+    };
+
+    // When all OTP digits are entered
+    otpInputs[3].addEventListener('input', function () {
+        if (this.value.length === 1) {
+            triggerVerification();
+        }
+    });
+
+    // Handle Enter key on any OTP input
+    otpInputs.forEach(input => {
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const otp = Array.from(otpInputs).map(i => i.value).join('');
+                if (otp.length === 4) {
+                    triggerVerification();
+                }
+            }
+        });
     });
 }
 
