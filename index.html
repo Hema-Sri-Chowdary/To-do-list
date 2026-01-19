@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management & To-Do List - Flow 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen active">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2 class="auth-title">Login</h2>
+                <form id="login-form" class="auth-form">
+                    <div class="input-wrapper">
+                        <input type="email" id="login-email" placeholder="Enter Your Email" required>
+                        <span class="input-icon">👤</span>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="password" id="login-password" placeholder="Password" required>
+                        <span class="input-icon password-toggle" style="cursor: pointer;">👁️</span>
+                    </div>
+                    <div class="auth-links">
+                        <a href="#" class="auth-link" onclick="showScreen('signup-screen'); return false;">New User?
+                            Sign Up</a>
+                        <a href="#" class="auth-link"
+                            onclick="showScreen('forgot-password-screen'); return false;">Forgot Password?</a>
+                    </div>
+                    <button type="submit" class="btn-primary">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sign Up Screen -->
+    <div id="signup-screen" class="screen">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2 class="auth-title">Sign up</h2>
+                <form id="signup-form" class="auth-form">
+                    <div class="input-wrapper">
+                        <input type="text" id="signup-name" placeholder="Full Name" required>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="email" id="signup-email" placeholder="Enter Your Email" required>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="password" id="signup-password" placeholder="Password" required>
+                        <span class="input-icon password-toggle" style="cursor: pointer;">👁️</span>
+                    </div>
+                    <button type="submit" class="btn-primary">Register</button>
+
+                    <div class="auth-footer">
+                        <a href="#" class="auth-link" onclick="showScreen('login-screen'); return false;">Already have
+                            an account? Login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup OTP Verification Screen -->
+    <div id="signup-otp-screen" class="screen">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2 class="auth-title">Verify your Email</h2>
+                <p class="auth-subtitle">We have sent a verification code to your email. Please enter it below.</p>
+                <form id="signup-otp-form" class="auth-form">
+                    <input type="hidden" id="signup-otp-email">
+                    <div class="otp-inputs">
+                        <input type="text" maxlength="1" class="otp-input signup-otp-input" required>
+                        <input type="text" maxlength="1" class="otp-input signup-otp-input" required>
+                        <input type="text" maxlength="1" class="otp-input signup-otp-input" required>
+                        <input type="text" maxlength="1" class="otp-input signup-otp-input" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Verify & Login</button>
+                    <div class="auth-footer">
+                        <a href="#" class="auth-link" onclick="showScreen('signup-screen'); return false;">Back to
+                            Signup</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    </form>
+    </div>
+    </div>
+    </div>
+
+    <!-- Forgot Password Screen -->
+    <div id="forgot-password-screen" class="screen">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2 class="auth-title">Enter your Email for verification and to reset password</h2>
+                <form id="forgot-password-form" class="auth-form">
+                    <div class="input-wrapper">
+                        <input type="email" id="forgot-email" placeholder="Enter your email" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Send OTP</button>
+                    <div id="otp-section" class="otp-section" style="display: none;">
+                        <p class="otp-label">Enter OTP</p>
+                        <div class="otp-inputs">
+                            <input type="text" maxlength="1" class="otp-input">
+                            <input type="text" maxlength="1" class="otp-input">
+                            <input type="text" maxlength="1" class="otp-input">
+                            <input type="text" maxlength="1" class="otp-input">
+                        </div>
+                    </div>
+                    <div class="auth-footer">
+                        <a href="#" class="auth-link" onclick="showScreen('login-screen'); return false;">Back to
+                            Login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboard-screen" class="screen">
+        <div class="app-header">
+            <div class="user-info">
+                <div class="profile-pic" onclick="toggleSidebar()">
+                    <span id="user-initials">NA</span>
+                </div>
+                <div class="greeting">
+                    <p class="greeting-text">Hello!</p>
+                    <h3 class="user-name" id="dashboard-username">NAME</h3>
+                </div>
+            </div>
+            <button class="notification-btn">🔔</button>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="completion-card">
+                <div class="completion-left">
+                    <h3 class="completion-title">Task Completion Percentage</h3>
+                    <button class="btn-view-task" onclick="showScreen('all-tasks-screen')">View Task</button>
+                </div>
+                <div class="circular-progress">
+                    <svg class="progress-ring" width="100" height="100">
+                        <circle class="progress-ring-bg" cx="50" cy="50" r="42" />
+                        <circle class="progress-ring-fill" cx="50" cy="50" r="42" id="progress-circle" />
+                    </svg>
+                    <div class="progress-percentage" id="completion-percentage">93%</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">In Progress</h3>
+                <div class="horizontal-scroll" id="in-progress-tasks">
+                    <!-- Dynamic task cards will be inserted here -->
+                </div>
+            </div>
+
+            <div class="summary-blocks">
+                <div class="summary-block">
+                    <p>Total number of tasks in progress - <span id="tasks-in-progress">9/28</span></p>
+                </div>
+                <div class="summary-block">
+                    <p>Total number of tasks completed - <span id="tasks-completed">19/28</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Menu -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="profile-pic">
+                <span id="sidebar-initials">NA</span>
+            </div>
+            <button class="sidebar-close" onclick="toggleSidebar()">←</button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="sidebar-item" onclick="showScreen('dashboard-screen'); toggleSidebar(); return false;">
+                <span class="sidebar-icon">🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="#" class="sidebar-item" onclick="showScreen('all-tasks-screen'); toggleSidebar(); return false;">
+                <span class="sidebar-icon">📋</span>
+                <span>All Tasks</span>
+            </a>
+            <a href="#" class="sidebar-item"
+                onclick="showScreen('completed-tasks-screen'); toggleSidebar(); return false;">
+                <span class="sidebar-icon">✓</span>
+                <span>Completed Tasks</span>
+            </a>
+            <a href="#" class="sidebar-item"
+                onclick="showScreen('pending-tasks-screen'); toggleSidebar(); return false;">
+                <span class="sidebar-icon">⏳</span>
+                <span>Pending</span>
+            </a>
+            <a href="#" class="sidebar-item" onclick="showScreen('add-tasks-screen'); toggleSidebar(); return false;">
+                <span class="sidebar-icon">➕</span>
+                <span>Add Tasks</span>
+            </a>
+            <a href="#" class="sidebar-item"
+                onclick="showScreen('delete-tasks-screen'); toggleSidebar(); return false;">
+                <span class="sidebar-icon">🗑️</span>
+                <span>Delete</span>
+            </a>
+            <a href="#" class="sidebar-item"
+                onclick="showScreen('update-tasks-screen'); toggleSidebar(); return false;">
+                <span class="sidebar-icon">✏️</span>
+                <span>Update</span>
+            </a>
+            <a href="#" class="sidebar-item" onclick="handleLogout(); return false;">
+                <span class="sidebar-icon">🚪</span>
+                <span>Logout</span>
+            </a>
+            <a href="#" class="sidebar-item" onclick="deleteAccount(); return false;"
+                style="color: #ff4d4d; margin-top: auto;">
+                <span class="sidebar-icon">🗑️</span>
+                <span>Delete Account</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- All Tasks Screen -->
+    <div id="all-tasks-screen" class="screen">
+        <div class="app-header">
+            <div class="user-info">
+                <div class="profile-pic" onclick="toggleSidebar()">
+                    <span id="all-tasks-initials">NA</span>
+                </div>
+                <h2 class="page-title">All Tasks</h2>
+            </div>
+            <button class="notification-btn">🔔</button>
+        </div>
+
+
+
+        <div class="tasks-container" id="all-tasks-list">
+            <!-- Dynamic task items will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Completed Tasks Screen -->
+    <div id="completed-tasks-screen" class="screen">
+        <div class="app-header">
+            <div class="user-info">
+                <div class="profile-pic" onclick="toggleSidebar()">
+                    <span id="completed-tasks-initials">NA</span>
+                </div>
+                <h2 class="page-title">Completed Tasks</h2>
+            </div>
+            <button class="notification-btn">🔔</button>
+        </div>
+
+        <div class="date-selector" id="completed-tasks-date-selector">
+            <!-- Dynamic date cards will be inserted here -->
+        </div>
+
+        <div class="tasks-container" id="completed-tasks-list">
+            <!-- Dynamic task items will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Pending Tasks Screen -->
+    <div id="pending-tasks-screen" class="screen">
+        <div class="app-header">
+            <div class="user-info">
+                <div class="profile-pic" onclick="toggleSidebar()">
+                    <span id="pending-tasks-initials">NA</span>
+                </div>
+                <h2 class="page-title">Pending Tasks</h2>
+            </div>
+            <button class="notification-btn">🔔</button>
+        </div>
+
+        <div class="date-selector" id="pending-tasks-date-selector">
+            <!-- Dynamic date cards will be inserted here -->
+        </div>
+
+        <div class="tasks-container" id="pending-tasks-list">
+            <!-- Dynamic task items will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Add Tasks Screen -->
+    <div id="add-tasks-screen" class="screen">
+        <div class="app-header">
+            <div class="user-info">
+                <div class="profile-pic" onclick="toggleSidebar()">
+                    <span id="add-tasks-initials">NA</span>
+                </div>
+                <h2 class="page-title">Add Tasks</h2>
+            </div>
+            <button class="notification-btn">🔔</button>
+        </div>
+
+        <div class="add-tasks-content">
+            <div class="existing-tasks-preview" id="existing-tasks-preview">
+                <!-- Dynamic task preview cards will be inserted here -->
+            </div>
+
+            <form id="add-task-form" class="task-form">
+                <input type="text" id="task-name" placeholder="Enter Task Name" required>
+                <input type="time" id="task-time" placeholder="Enter Deadline Time" required>
+                <input type="date" id="task-date" placeholder="Enter Deadline Date" required>
+                <button type="submit" class="btn-primary">Add</button>
+            </form>
+
+
+        </div>
+    </div>
+
+    <!-- Update Tasks Screen (Page 1 - Selection) -->
+    <div id="update-tasks-screen" class="screen">
+        <div class="app-header">
+            <div class="user-info">
+                <div class="profile-pic" onclick="toggleSidebar()">
+                    <span id="update-tasks-initials">NA</span>
+                </div>
+                <h2 class="page-title">Update Tasks</h2>
+            </div>
+            <button class="notification-btn">🔔</button>
+        </div>
+
+        <div class="date-selector" id="update-tasks-date-selector">
+            <!-- Dynamic date cards will be inserted here -->
+        </div>
+
+        <p class="screen-subtitle">Select tasks needed to be Update</p>
+
+        <div class="tasks-container selectable" id="update-tasks-list">
+            <!-- Dynamic task items with checkboxes will be inserted here -->
+        </div>
+
+        <button class="btn-primary btn-bottom" onclick="proceedToUpdateDetails()">Update</button>
+    </div>
+
+    <!-- Updating Tasks Screen (Page 2 - Edit Details) -->
+    <div id="updating-tasks-screen" class="screen">
+        <div class="app-header">
+            <div class="user-info">
+                <div class="profile-pic" onclick="toggleSidebar()">
+                    <span id="updating-tasks-initials">NA</span>
+                </div>
+                <h2 class="page-title">Updating Tasks</h2>
+            </div>
+            <button class="notification-btn">🔔</button>
+        </div>
+
+        <div class="updating-content">
+            <div class="existing-tasks-preview" id="updating-tasks-preview">
+                <!-- Dynamic task preview cards will be inserted here -->
+            </div>
+
+            <div class="update-details-form" id="update-details-form">
+                <!-- Dynamic update fields will be inserted here -->
+            </div>
+
+            <button class="btn-primary btn-bottom" onclick="saveUpdatedTask()">Update Details</button>
+        </div>
+    </div>
+
+    <!-- Delete Tasks Screen -->
+    <div id="delete-tasks-screen" class="screen">
+        <div class="app-header">
+            <div class="user-info">
+                <div class="profile-pic" onclick="toggleSidebar()">
+                    <span id="delete-tasks-initials">NA</span>
+                </div>
+                <h2 class="page-title">Delete Tasks</h2>
+            </div>
+            <button class="notification-btn">🔔</button>
+        </div>
+
+        <div class="date-selector" id="delete-tasks-date-selector">
+            <!-- Dynamic date cards will be inserted here -->
+        </div>
+
+        <p class="screen-subtitle">Select tasks needed to be deleted</p>
+
+        <div class="tasks-container selectable" id="delete-tasks-list">
+            <!-- Dynamic task items with checkboxes will be inserted here -->
+        </div>
+
+        <button class="btn-primary btn-bottom" onclick="deleteSelectedTasks()">Delete</button>
+    </div>
+
+    <!-- Logout Success Screen -->
+    <div id="logout-screen" class="screen">
+        <div class="auth-container">
+            <div class="logout-card">
+                <h2 class="logout-message">Successfully Logged out!</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="custom-modal-overlay" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <h3 id="modal-title" class="modal-title">Title</h3>
+            <p id="modal-message" class="modal-message">Message goes here</p>
+            <input type="text" id="modal-input" class="modal-input" style="display: none;">
+            <div class="modal-actions">
+                <button id="modal-cancel-btn" class="btn-secondary">Cancel</button>
+                <button id="modal-confirm-btn" class="btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js?v=7"></script>
+</body>
+
+</html>
