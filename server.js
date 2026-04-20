@@ -57,6 +57,7 @@ app.get('/api/debug', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/payment', require('./routes/payment'));
 
 // Serve Static Assets
 app.use(express.static(path.join(__dirname, 'public')));
@@ -81,7 +82,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-// Start server only if run directly OR if NOT running in Vercel (fallback for local dev)
+// Start server only if run directly OR if NOT running in Vercel ((fallback for local dev))
 if (require.main === module || !process.env.VERCEL) {
     const PORT = config.port;
     app.listen(PORT, () => {

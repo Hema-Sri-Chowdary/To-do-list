@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 
 <body>
@@ -33,6 +34,13 @@
                             onclick="showScreen('forgot-password-screen'); return false;">Forgot Password?</a>
                     </div>
                     <button type="submit" class="btn-primary">Login</button>
+                    <div class="auth-separator">
+                        <span>OR</span>
+                    </div>
+                    <button class="btn-google">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
+                        Continue with Google
+                    </button>
                 </form>
             </div>
         </div>
@@ -55,6 +63,13 @@
                         <span class="input-icon password-toggle" style="cursor: pointer;">👁️</span>
                     </div>
                     <button type="submit" class="btn-primary">Register</button>
+                    <div class="auth-separator">
+                        <span>OR</span>
+                    </div>
+                    <button class="btn-google">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
+                        Continue with Google
+                    </button>
 
                     <div class="auth-footer">
                         <a href="#" class="auth-link" onclick="showScreen('login-screen'); return false;">Already have
@@ -209,6 +224,10 @@
                 onclick="showScreen('update-tasks-screen'); toggleSidebar(); return false;">
                 <span class="sidebar-icon">✏️</span>
                 <span>Update</span>
+            </a>
+            <a href="#" class="sidebar-item" id="premium-btn" onclick="purchasePremium(); return false;">
+                <span class="sidebar-icon" style="color: gold;">⭐</span>
+                <span style="color: gold; font-weight: 600;">Go Premium</span>
             </a>
             <a href="#" class="sidebar-item" onclick="handleLogout(); return false;">
                 <span class="sidebar-icon">🚪</span>

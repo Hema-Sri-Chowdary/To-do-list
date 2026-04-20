@@ -22,7 +22,8 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
     clientID: config.google.clientId,
     clientSecret: config.google.clientSecret,
-    callbackURL: config.google.callbackUrl
+    callbackURL: config.google.callbackUrl,
+    proxy: true
 },
     async (accessToken, refreshToken, profile, done) => {
         try {
@@ -43,7 +44,8 @@ passport.use(new GoogleStrategy({
                 googleId: profile.id,
                 email: profile.emails[0].value,
                 name: profile.displayName || profile.emails[0].value.split('@')[0].toUpperCase(),
-                password: Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8) // Random password
+                password: Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8),
+                isVerified: true
             });
 
             done(null, user);

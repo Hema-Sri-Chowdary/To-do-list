@@ -21,6 +21,11 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Name is required'],
         trim: true
     },
+    googleId: {
+        type: String,
+        sparse: true,
+        unique: true
+    },
     isVerified: {
         type: Boolean,
         default: false
@@ -40,6 +45,10 @@ const userSchema = new mongoose.Schema({
     resetPasswordExpire: {
         type: Date,
         select: false
+    },
+    isPremium: {
+        type: Boolean,
+        default: false
     },
     createdAt: {
         type: Date,

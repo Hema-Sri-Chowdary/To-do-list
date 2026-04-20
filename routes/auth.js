@@ -340,10 +340,7 @@ router.post('/reset-password', resetPasswordValidation, async (req, res) => {
     }
 });
 
-// Google OAuth routes commented out until credentials are configured
-// Uncomment these routes after setting up Google OAuth credentials in .env
-
-/*
+// Google OAuth routes configured
 const passport = require('../config/passport');
 
 router.get('/google',
@@ -369,7 +366,6 @@ router.get('/google/callback',
         }
     }
 );
-*/
 
 const { protect } = require('../middleware/auth');
 

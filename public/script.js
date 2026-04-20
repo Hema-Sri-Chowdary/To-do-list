@@ -293,6 +293,11 @@ function setupSignupOTPInputs() {
 async function handleForgotPassword(e) {
     e.preventDefault();
 
+    const otpSection = document.getElementById('otp-section');
+    if (otpSection && otpSection.style.display !== 'none') {
+        return;
+    }
+
     const email = document.getElementById('forgot-email').value;
 
     try {
@@ -323,74 +328,72 @@ async function handleForgotPassword(e) {
 function setupOTPVerification(email) {
     const otpInputs = document.querySelectorAll('.otp-input');
 
-    // When all OTP digits are entered
-    otpInputs[3].addEventListener('input', async function () {
-        if (this.value.length === 1) {
-            // Collect OTP
-            const otp = Array.from(otpInputs).map(input => input.value).join('');
+    const triggerVerification = () => {
+        const otp = Array.from(otpInputs).map(input => input.value).join('');
 
-            if (otp.length === 4) {
-                // Remove prompt, use custom flow or just a simple input fix
-                // For now, since we don't have a prompt modal, we'll assume the user
-                // should have entered the password differently, but to fix this FAST:
-                // We will use a standard modal to ask for password or just a second form step.
-                // Simpler: Show modal asking for new password is hard without input.
-                // BETTER FIX: Show a new screen or use a specific modal with input.
-                // Given constraints, I'll allow the user to enter password in a new hidden input 
-                // that appears after OTP, OR just use `prompt` replacement which we don't have.
+        if (otp.length === 4) {
+            let passwordInput = document.getElementById('new-password-input');
+            if (!passwordInput) {
+                const otpSection = document.getElementById('otp-section');
+                const passDiv = document.createElement('div');
+                passDiv.className = 'input-wrapper';
+                passDiv.style.marginTop = '20px';
+                passDiv.innerHTML = '<input type="password" id="new-password-input" placeholder="Enter new password" required style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px;">';
+                otpSection.appendChild(passDiv);
 
-                // Let's modify the flow: 
-                // 1. Verify OTP first.
-                // 2. If valid, show "New Password" screen/form.
-
-                // For this quick fix, I will inject a password input into the DOM dynamically
-                // inside the OTP section or show a modal with input.
-                // Since `showModal` doesn't support input, I'll append a password field to the form
-                // after OTP is entered.
-
-                let passwordInput = document.getElementById('new-password-input');
-                if (!passwordInput) {
-                    const otpSection = document.getElementById('otp-section');
-                    const passDiv = document.createElement('div');
-                    passDiv.className = 'input-wrapper';
-                    passDiv.style.marginTop = '20px';
-                    passDiv.innerHTML = '<input type="password" id="new-password-input" placeholder="Enter new password" required style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px;">';
-                    otpSection.appendChild(passDiv);
-
-                    const submitBtn = document.createElement('button');
-                    submitBtn.type = 'button'; // Prevent form submit
-                    submitBtn.className = 'btn-primary';
-                    submitBtn.style.marginTop = '10px';
-                    submitBtn.textContent = 'Reset Password';
-                    submitBtn.onclick = async () => {
-                        const newPassword = document.getElementById('new-password-input').value;
-                        if (newPassword && newPassword.length >= 6) {
-                            try {
-                                await apiRequest('/auth/reset-password', {
-                                    method: 'POST',
-                                    body: JSON.stringify({ email, otp, newPassword })
-                                });
-                                showModal('Success', 'Password reset successful! Please login.', () => {
-                                    sessionStorage.removeItem('resetEmail');
-                                    showScreen('login-screen');
-                                });
-                            } catch (error) {
-                                showModal('Error', 'Password reset failed: ' + error.message);
-                            }
-                        } else {
-                            showModal('Invalid Password', 'Password must be at least 6 characters');
+                const submitBtn = document.createElement('button');
+                submitBtn.type = 'button'; // Prevent form submit
+                submitBtn.className = 'btn-primary';
+                submitBtn.style.marginTop = '10px';
+                submitBtn.textContent = 'Reset Password';
+                submitBtn.onclick = async () => {
+                    const newPassword = document.getElementById('new-password-input').value;
+                    if (newPassword && newPassword.length >= 6) {
+                        try {
+                            await apiRequest('/auth/reset-password', {
+                                method: 'POST',
+                                body: JSON.stringify({ email, otp, newPassword })
+                            });
+                            showModal('Success', 'Password reset successful! Please login.', () => {
+                                sessionStorage.removeItem('resetEmail');
+                                showScreen('login-screen');
+                            });
+                        } catch (error) {
+                            showModal('Error', 'Password reset failed: ' + error.message);
                         }
-                    };
-                    otpSection.appendChild(submitBtn);
+                    } else {
+                        showModal('Invalid Password', 'Password must be at least 6 characters');
+                    }
+                };
+                otpSection.appendChild(submitBtn);
 
-                    // Hide original "Send OTP" button if visible (it submitted the form)
-                    const sendOtpBtn = document.querySelector('#forgot-password-form button[type="submit"]');
-                    if (sendOtpBtn) sendOtpBtn.style.display = 'none';
+                // Hide original "Send OTP" button if visible (it submitted the form)
+                const sendOtpBtn = document.querySelector('#forgot-password-form button[type="submit"]');
+                if (sendOtpBtn) sendOtpBtn.style.display = 'none';
 
-                    document.getElementById('new-password-input').focus();
-                }
+                document.getElementById('new-password-input').focus();
             }
         }
+    };
+
+    // When all OTP digits are entered
+    otpInputs[3].addEventListener('input', function () {
+        if (this.value.length === 1) {
+            triggerVerification();
+        }
+    });
+
+    // Handle Enter key on any OTP input
+    otpInputs.forEach(input => {
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const otp = Array.from(otpInputs).map(i => i.value).join('');
+                if (otp.length === 4) {
+                    triggerVerification();
+                }
+            }
+        });
     });
 }
 
@@ -451,10 +454,80 @@ function handleLogout() {
     }, 2000);
 }
 
+// ===== Payment and Premium API =====
+async function purchasePremium() {
+    try {
+        const response = await apiRequest('/payment/create-order', {
+            method: 'POST'
+        });
+        
+        if (!response.success) {
+            showModal('Error', 'Could not initiate payment');
+            return;
+        }
+
+        const options = {
+            key: 'rzp_test_dummy', // Using Dummy Key for now
+            amount: response.order.amount,
+            currency: response.order.currency,
+            name: 'To-Do Premium',
+            description: 'Premium Mode Subscription',
+            order_id: response.order.id,
+            handler: async function (paymentResponse) {
+                try {
+                    const verifyRes = await apiRequest('/payment/verify', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            razorpayPaymentId: paymentResponse.razorpay_payment_id,
+                            razorpayInstanceOrderId: paymentResponse.razorpay_order_id,
+                            razorpaySignature: paymentResponse.razorpay_signature
+                        })
+                    });
+                    
+                    if (verifyRes.success) {
+                        currentUser.isPremium = true;
+                        saveAuthToStorage();
+                        showModal('Success', 'Welcome to Premium Mode!');
+                        updateUserInfo();
+                    } else {
+                        showModal('Payment Failed', 'Payment verification failed');
+                    }
+                } catch (err) {
+                    showModal('Error', 'Payment verification error');
+                }
+            },
+            prefill: {
+                name: currentUser.name,
+                email: currentUser.email
+            },
+            theme: { color: '#000000' }
+        };
+
+        const razorpayUI = new Razorpay(options);
+        razorpayUI.open();
+
+    } catch (error) {
+        showModal('Error', 'Error initiating payment: ' + (error.message || 'Unknown error'));
+    }
+}
+
 // ===== Task API Functions =====
 async function fetchTasks() {
     try {
         const response = await apiRequest('/tasks');
+        const currentDateTime = new Date();
+        
+        response.data.forEach(task => {
+            if (!task.completed && task.date && task.time) {
+                const taskDateTime = new Date(`${task.date} ${task.time}`);
+                if (taskDateTime < currentDateTime) {
+                    task.completed = true;
+                    task.progress = 100;
+                    updateTask(task._id, { completed: true, progress: 100 }).catch(console.error);
+                }
+            }
+        });
+
         tasks = response.data;
         return tasks;
     } catch (error) {
@@ -550,6 +623,19 @@ function updateUserInfo() {
     const usernameElement = document.getElementById('dashboard-username');
     if (usernameElement) {
         usernameElement.textContent = name;
+        if (currentUser.isPremium) {
+            usernameElement.innerHTML = `${name} <span style="color: gold; text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); font-size: 14px; margin-left: 5px;">👑 Premium</span>`;
+        }
+    }
+
+    // Toggle Premium Button in Sidebar
+    const premiumBtn = document.getElementById('premium-btn');
+    if (premiumBtn) {
+        if (currentUser.isPremium) {
+            premiumBtn.style.display = 'none'; // Hide if premium
+        } else {
+            premiumBtn.style.display = 'flex'; // Show if not premium
+        }
     }
 }
 
@@ -1249,14 +1335,14 @@ function setupPasswordToggle() {
 
 // ===== Google Sign-In =====
 function setupGoogleSignIn() {
-    const googleButton = document.querySelector('.btn-google');
-    if (googleButton) {
-        googleButton.addEventListener('click', function (e) {
+    const googleButtons = document.querySelectorAll('.btn-google');
+    googleButtons.forEach(btn => {
+        btn.addEventListener('click', function (e) {
             e.preventDefault();
             // Redirect to Google OAuth endpoint
             window.location.href = `${API_BASE_URL}/auth/google`;
         });
-    }
+    });
 }
 
 // ===== Local Storage (for auth only) =====

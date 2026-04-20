@@ -23,8 +23,8 @@ module.exports = {
 
     // Google OAuth
     google: {
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        clientId: process.env.GOOGLE_CLIENT_ID || 'dummy_client_id',
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'dummy_client_secret',
         callbackUrl: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/auth/google/callback'
     },
 
