@@ -14,7 +14,22 @@ let selectedTaskForUpdate = null;
 
 // ===== Initialize App =====
 document.addEventListener('DOMContentLoaded', function () {
-    loadAuthFromStorage();
+    // Check if coming from Google OAuth callback
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const email = urlParams.get('email');
+    const name = urlParams.get('name');
+
+    if (token) {
+        authToken = token;
+        currentUser = { email: email || '', name: name || 'User' };
+        saveAuthToStorage();
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+        loadAuthFromStorage();
+    }
+
     initializeApp();
 });
 
