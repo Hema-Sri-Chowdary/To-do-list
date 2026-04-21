@@ -29,5 +29,11 @@ module.exports = {
     },
 
     // Frontend
-    frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000'
+    frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+
+    // Razorpay
+    razorpay: {
+        keyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy',
+        keySecret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret'
+    }
 };

@@ -34,8 +34,9 @@ passport.use(new GoogleStrategy({
                 // User exists, update Google ID if not set
                 if (!user.googleId) {
                     user.googleId = profile.id;
-                    await user.save();
                 }
+                user.isVerified = true;
+                await user.save();
                 return done(null, user);
             }
 

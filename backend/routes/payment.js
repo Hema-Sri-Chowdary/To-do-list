@@ -8,8 +8,8 @@ const config = require('../config/config');
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy',
-    key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret',
+    key_id: config.razorpay.keyId,
+    key_secret: config.razorpay.keySecret,
 });
 
 /**
@@ -28,13 +28,20 @@ router.post('/create-order', protect, async (req, res) => {
         const order = await razorpay.orders.create(options);
         
         if (!order) {
-            return res.status(500).json({ success: false, message: 'Some error occurred' });
+            return res.status(500).json({ success: false, message: 'Could not create order' });
         }
         
-        res.status(200).json({ success: true, order });
+        res.status(200).json({ 
+            success: true, 
+            order,
+            key_id: config.razorpay.keyId
+        });
     } catch (error) {
         console.error('Create Order Error:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error: ' + error.message 
+        });
     }
 });
 

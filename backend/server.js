@@ -27,6 +27,8 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+const passport = require('./config/passport');
+app.use(passport.initialize());
 
 // Request logging middleware (development)
 if (config.nodeEnv === 'development') {

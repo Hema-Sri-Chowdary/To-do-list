@@ -416,16 +416,16 @@ router.get('/google',
 router.get('/google/callback',
     passport.authenticate('google', {
         session: false,
-        failureRedirect: process.env.FRONTEND_URL || 'http://localhost:5500'
+        failureRedirect: config.frontendUrl
     }),
     (req, res) => {
         try {
             const token = generateToken(req.user._id);
-            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5500';
+            const frontendUrl = config.frontendUrl;
             res.redirect(`${frontendUrl}?token=${token}&email=${req.user.email}&name=${req.user.name}`);
         } catch (error) {
             console.error('Google callback error:', error);
-            res.redirect(process.env.FRONTEND_URL || 'http://localhost:5500');
+            res.redirect(config.frontendUrl);
         }
     }
 );

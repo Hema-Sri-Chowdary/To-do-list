@@ -183,6 +183,25 @@ function setupFormHandlers() {
 
     // OTP Input Auto-focus
     setupOTPInputs();
+
+    // Google Auth
+    setupGoogleAuth();
+}
+
+function setupGoogleAuth() {
+    const loginBtn = document.getElementById('google-login-btn');
+    const signupBtn = document.getElementById('google-signup-btn');
+
+    if (loginBtn) {
+        loginBtn.addEventListener('click', handleGoogleAuth);
+    }
+    if (signupBtn) {
+        signupBtn.addEventListener('click', handleGoogleAuth);
+    }
+}
+
+function handleGoogleAuth() {
+    window.location.href = `${API_BASE_URL}/auth/google`;
 }
 
 async function handleLogin(e) {
@@ -555,7 +574,7 @@ async function purchasePremium() {
         }
 
         const options = {
-            key: 'rzp_test_dummy', // Using Dummy Key for now
+            key: response.key_id, // Use key from server
             amount: response.order.amount,
             currency: response.order.currency,
             name: 'To-Do Premium',
