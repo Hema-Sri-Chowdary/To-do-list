@@ -7,7 +7,7 @@
         },
         {
             "source": "/(.*)",
-            "destination": "/backend/api/index.js"
+            "destination": "/frontend/$1"
         }
     ]
 }
