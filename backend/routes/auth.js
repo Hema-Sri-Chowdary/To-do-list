@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const { generateToken } = require('../middleware/auth');
-const { sendPasswordResetEmail, sendWelcomeEmail, sendVerificationEmail } = require('../utils/email');
+const { sendPasswordResetEmail, sendWelcomeEmail, sendVerificationEmail, sendSigninOTPEmail } = require('../utils/email');
 const {
     signupValidation,
     loginValidation,
@@ -133,6 +133,59 @@ router.post('/verify-email', verifyOTPValidation, async (req, res) => {
 });
 
 /**
+ * @route   POST /api/auth/verify-mfa
+ * @desc    Verify sign-in OTP and return token
+ * @access  Public
+ */
+router.post('/verify-mfa', verifyOTPValidation, async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        const user = await User.findOne({ email }).select('+signinOTP +signinOTPExpire');
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: 'Invalid email' });
+        }
+
+        const isValid = await user.verifySigninOTP(otp);
+
+        if (!isValid) {
+            return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+        }
+
+        // Clear sign-in OTP fields
+        user.signinOTP = undefined;
+        user.signinOTPExpire = undefined;
+        await user.save();
+
+        // Generate token
+        const token = generateToken(user._id);
+
+        res.status(200).json({
+            success: true,
+            message: 'Login successful',
+            data: {
+                token,
+                user: {
+                    id: user._id,
+                    email: user.email,
+                    name: user.name,
+                    isPremium: user.isPremium
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('MFA verification error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error verifying MFA',
+            error: error.message
+        });
+    }
+});
+
+/**
  * @route   POST /api/auth/login
  * @desc    Login user
  * @access  Public
@@ -171,16 +224,26 @@ router.post('/login', loginValidation, async (req, res) => {
 
         const token = generateToken(user._id);
 
+        // MFA Implementation
+        // Generate and send sign-in OTP
+        const otp = user.generateSigninOTP();
+        await user.save();
+
+        const emailResult = await sendSigninOTPEmail(email, otp, user.name);
+
+        if (!emailResult.success) {
+            return res.status(500).json({
+                success: false,
+                message: 'Error sending verification code. Please try again later.'
+            });
+        }
+
         res.status(200).json({
             success: true,
-            message: 'Login successful',
+            message: 'MFA required',
             data: {
-                token,
-                user: {
-                    id: user._id,
-                    email: user.email,
-                    name: user.name
-                }
+                needsMFA: true,
+                email: user.email
             }
         });
 

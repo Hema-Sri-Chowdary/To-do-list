@@ -46,6 +46,14 @@ const userSchema = new mongoose.Schema({
         type: Date,
         select: false
     },
+    signinOTP: {
+        type: String,
+        select: false
+    },
+    signinOTPExpire: {
+        type: Date,
+        select: false
+    },
     isPremium: {
         type: Boolean,
         default: false
@@ -124,6 +132,26 @@ userSchema.methods.verifyVerificationOTP = async function (candidateOTP) {
     }
     try {
         return await bcrypt.compare(candidateOTP, this.verificationOTP);
+    } catch (error) {
+        return false;
+    }
+};
+
+// Method to generate Sign-in OTP
+userSchema.methods.generateSigninOTP = function () {
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    this.signinOTP = bcrypt.hashSync(otp, 10);
+    this.signinOTPExpire = Date.now() + 10 * 60 * 1000;
+    return otp;
+};
+
+// Method to verify Sign-in OTP
+userSchema.methods.verifySigninOTP = async function (candidateOTP) {
+    if (Date.now() > this.signinOTPExpire) {
+        return false;
+    }
+    try {
+        return await bcrypt.compare(candidateOTP, this.signinOTP);
     } catch (error) {
         return false;
     }

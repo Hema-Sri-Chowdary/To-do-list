@@ -60,11 +60,11 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/payment', require('./routes/payment'));
 
 // Serve Static Assets
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 // Serve index.html for any other route (SPA styling)
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
 // 404 handler (handled by * route above for pages, but keep for API safety if logic changes)

@@ -103,6 +103,30 @@
             </div>
         </div>
     </div>
+
+    <!-- Sign-in MFA OTP Verification Screen -->
+    <div id="signin-otp-screen" class="screen">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2 class="auth-title">Enter MFA Code</h2>
+                <p class="auth-subtitle">A 4-digit code has been sent to your email. Enter it below to complete sign-in.</p>
+                <form id="signin-otp-form" class="auth-form">
+                    <input type="hidden" id="signin-otp-email">
+                    <div class="otp-inputs">
+                        <input type="text" maxlength="1" class="otp-input signin-otp-input" required>
+                        <input type="text" maxlength="1" class="otp-input signin-otp-input" required>
+                        <input type="text" maxlength="1" class="otp-input signin-otp-input" required>
+                        <input type="text" maxlength="1" class="otp-input signin-otp-input" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Verify & Sign In</button>
+                    <div class="auth-footer">
+                        <a href="#" class="auth-link" onclick="showScreen('login-screen'); return false;">Back to
+                            Login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     </form>
     </div>
     </div>

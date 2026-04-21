@@ -163,6 +163,12 @@ function setupFormHandlers() {
         signupOtpForm.addEventListener('submit', handleSignupOTP);
     }
 
+    // Signin MFA OTP Form
+    const signinOtpForm = document.getElementById('signin-otp-form');
+    if (signinOtpForm) {
+        signinOtpForm.addEventListener('submit', handleSigninOTP);
+    }
+
     // Forgot Password Form
     const forgotPasswordForm = document.getElementById('forgot-password-form');
     if (forgotPasswordForm) {
@@ -179,17 +185,20 @@ function setupFormHandlers() {
     setupOTPInputs();
 }
 
-async function handleLogin(e) {
-    e.preventDefault();
-
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-
     try {
         const response = await apiRequest('/auth/login', {
             method: 'POST',
             body: JSON.stringify({ email, password })
         });
+
+        // Check for MFA requirement
+        if (response.data && response.data.needsMFA) {
+            document.getElementById('signin-otp-email').value = response.data.email;
+            showScreen('signin-otp-screen');
+            showModal('MFA Required', 'Please enter the verification code sent to your email.');
+            setupSigninOTPInputs();
+            return;
+        }
 
         // Save auth data
         authToken = response.data.token;
@@ -218,6 +227,64 @@ async function handleLogin(e) {
         }
         showModal('Login Failed', error.message);
     }
+}
+
+async function handleSigninOTP(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('signin-otp-email').value;
+    const otpInputs = document.querySelectorAll('.signin-otp-input');
+    const otp = Array.from(otpInputs).map(input => input.value).join('');
+
+    if (otp.length !== 4) {
+        showModal('Invalid Code', 'Please enter the 4-digit code');
+        return;
+    }
+
+    try {
+        const response = await apiRequest('/auth/verify-mfa', {
+            method: 'POST',
+            body: JSON.stringify({ email, otp })
+        });
+
+        // Save auth data
+        authToken = response.data.token;
+        currentUser = response.data.user;
+        saveAuthToStorage();
+
+        // Fetch tasks
+        await fetchTasks();
+
+        // Navigate to dashboard
+        showScreen('dashboard-screen');
+        updateUserInfo();
+        renderDashboard();
+
+    } catch (error) {
+        showModal('MFA Failed', 'Verification failed: ' + error.message);
+    }
+}
+
+function setupSigninOTPInputs() {
+    const inputs = document.querySelectorAll('.signin-otp-input');
+    inputs.forEach((input, index) => {
+        // Clear previous values
+        input.value = '';
+        
+        input.addEventListener('input', function () {
+            if (this.value.length === 1) {
+                if (index < inputs.length - 1) inputs[index + 1].focus();
+            }
+        });
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Backspace' && this.value.length === 0) {
+                if (index > 0) inputs[index - 1].focus();
+            }
+        });
+    });
+    
+    // Focus first input
+    if (inputs[0]) inputs[0].focus();
 }
 
 async function handleSignup(e) {

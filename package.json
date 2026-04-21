@@ -2,10 +2,10 @@
   "name": "todo-list-backend",
   "version": "1.0.0",
   "description": "Backend API for To-Do List Application",
-  "main": "server.js",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
