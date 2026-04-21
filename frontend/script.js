@@ -185,6 +185,12 @@ function setupFormHandlers() {
     setupOTPInputs();
 }
 
+async function handleLogin(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+
     try {
         const response = await apiRequest('/auth/login', {
             method: 'POST',
