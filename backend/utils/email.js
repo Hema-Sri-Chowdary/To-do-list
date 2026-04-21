@@ -288,13 +288,6 @@ const sendVerificationEmail = async (email, otp, userName) => {
 
     } catch (error) {
         console.error('❌ Verification email error:', error);
-        // Fallback: Log OTP to a file so we can see it
-        try {
-            const fs = require('fs');
-            fs.writeFileSync('otp.txt', `Last OTP: ${otp} for ${email}`);
-        } catch (err) {
-            console.error('Error writing OTP file:', err);
-        }
         return { success: true, error: error.message };
     }
 };
@@ -359,13 +352,6 @@ const sendSigninOTPEmail = async (email, otp, userName) => {
 
     } catch (error) {
         console.error('❌ Sign-in OTP email error:', error);
-        // Fallback: Log OTP to a file so we can see it
-        try {
-            const fs = require('fs');
-            fs.appendFileSync('otp.txt', `\nSign-in OTP: ${otp} for ${email} at ${new Date().toISOString()}`);
-        } catch (err) {
-            console.error('Error writing OTP file:', err);
-        }
         return { success: true, error: error.message };
     }
 };

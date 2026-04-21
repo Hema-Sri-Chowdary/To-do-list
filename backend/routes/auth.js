@@ -67,7 +67,7 @@ router.post('/signup', signupValidation, async (req, res) => {
         console.error('Signup error:', error);
         res.status(500).json({
             success: false,
-            message: 'Error creating user',
+            message: error.message || 'Error creating user',
             error: error.message
         });
     }
