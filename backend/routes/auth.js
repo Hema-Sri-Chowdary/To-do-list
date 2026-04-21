@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const config = require('../config/config');
 const { generateToken } = require('../middleware/auth');
 const { sendPasswordResetEmail, sendWelcomeEmail, sendVerificationEmail, sendSigninOTPEmail } = require('../utils/email');
 const {
