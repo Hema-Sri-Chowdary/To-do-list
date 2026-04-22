@@ -3,7 +3,12 @@ const config = require('../config/config');
 
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(config.mongodbUri);
+        const maskedUri = config.mongodbUri.replace(/\/\/.*@/, '//****:****@');
+        console.log(`📡 Attempting to connect to MongoDB: ${maskedUri}`);
+        
+        const conn = await mongoose.connect(config.mongodbUri, {
+            serverSelectionTimeoutMS: 5000,
+        });
 
         console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
 

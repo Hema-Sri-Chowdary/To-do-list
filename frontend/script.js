@@ -1010,18 +1010,30 @@ function renderAddTasksPreview() {
 
 // ===== Update Tasks =====
 // ===== Update Tasks =====
-function renderUpdateTasksSelection(selectedDate = new Date()) {
-    renderDateSelector('update-tasks-date-selector', (date) => renderUpdateTasksSelection(date), selectedDate);
-
+function renderUpdateTasksSelection() {
     const container = document.getElementById('update-tasks-list');
     if (!container) return;
 
     container.innerHTML = '';
 
-    const filteredTasks = tasks.filter(task => isSameDate(task.date, selectedDate));
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const filteredTasks = tasks
+        .filter(task => {
+            if (!task.date) return false;
+            const [y, m, d] = task.date.split('-').map(Number);
+            const taskDate = new Date(y, m - 1, d);
+            return taskDate >= today;
+        })
+        .sort((a, b) => {
+            const dateA = new Date(`${a.date} ${a.time}`);
+            const dateB = new Date(`${b.date} ${b.time}`);
+            return dateA - dateB;
+        });
 
     if (filteredTasks.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-light); text-align: center; padding: 40px;">No tasks found for this date</p>';
+        container.innerHTML = '<p style="color: var(--text-light); text-align: center; padding: 40px;">No upcoming tasks found</p>';
         return;
     }
 
@@ -1217,18 +1229,30 @@ async function saveUpdatedTask() {
 }
 
 // ===== Delete Tasks =====
-function renderDeleteTasks(selectedDate = new Date()) {
-    renderDateSelector('delete-tasks-date-selector', (date) => renderDeleteTasks(date), selectedDate);
-
+function renderDeleteTasks() {
     const container = document.getElementById('delete-tasks-list');
     if (!container) return;
 
     container.innerHTML = '';
 
-    const filteredTasks = tasks.filter(task => isSameDate(task.date, selectedDate));
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const filteredTasks = tasks
+        .filter(task => {
+            if (!task.date) return false;
+            const [y, m, d] = task.date.split('-').map(Number);
+            const taskDate = new Date(y, m - 1, d);
+            return taskDate >= today;
+        })
+        .sort((a, b) => {
+            const dateA = new Date(`${a.date} ${a.time}`);
+            const dateB = new Date(`${b.date} ${b.time}`);
+            return dateA - dateB;
+        });
 
     if (filteredTasks.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-light); text-align: center; padding: 40px;">No tasks found for this date</p>';
+        container.innerHTML = '<p style="color: var(--text-light); text-align: center; padding: 40px;">No upcoming tasks found</p>';
         return;
     }
 
