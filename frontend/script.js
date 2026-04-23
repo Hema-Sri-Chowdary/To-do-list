@@ -865,11 +865,17 @@ async function renderAllTasks() {
     renderTasksList('all-tasks-list', sortedTasks);
 }
 
-async function renderCompletedTasks(selectedDate = new Date()) {
+async function renderCompletedTasks() {
     await fetchTasks();
-    renderDateSelector('completed-tasks-date-selector', (date) => renderCompletedTasks(date), selectedDate);
 
-    const completedTasks = tasks.filter(task => task.completed && isSameDate(task.date, selectedDate));
+    const completedTasks = tasks
+        .filter(task => task.completed)
+        .sort((a, b) => {
+            const dateA = new Date(`${a.date} ${a.time}`);
+            const dateB = new Date(`${b.date} ${b.time}`);
+            return dateA - dateB;
+        });
+
     renderTasksList('completed-tasks-list', completedTasks);
 }
 
