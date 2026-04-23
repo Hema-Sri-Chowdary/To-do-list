@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todo-app
+  template:
+    metadata:
+      labels:
+        app: todo-app
+    spec:
+      containers:
+      - name: todo-app
+        image: your-docker-hub-username/todo-app:latest # Replace with your image
+        ports:
+        - containerPort: 5000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "5000"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: todo-secrets
+              key: JWT_SECRET
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: todo-secrets
+              key: MONGODB_URI
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-app-service
+spec:
+  type: LoadBalancer # Use ClusterIP and Ingress for production
+  selector:
+    app: todo-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000

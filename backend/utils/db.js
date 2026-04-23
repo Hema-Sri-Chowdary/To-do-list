@@ -1,38 +1,45 @@
 const mongoose = require('mongoose');
 const config = require('../config/config');
 
+let cachedDB = null;
+
 const connectDB = async () => {
+    if (cachedDB) {
+        return cachedDB;
+    }
+
     try {
         const maskedUri = config.mongodbUri.replace(/\/\/.*@/, '//****:****@');
         console.log(`📡 Attempting to connect to MongoDB: ${maskedUri}`);
         
+        // Set global mongoose options
+        mongoose.set('bufferCommands', false);
+
         const conn = await mongoose.connect(config.mongodbUri, {
             serverSelectionTimeoutMS: 5000,
+            // These are default in Mongoose 6+, but good to be explicit for clarity
+            autoIndex: true, 
         });
 
+        cachedDB = conn;
         console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
 
         // Handle connection events
         mongoose.connection.on('error', (err) => {
             console.error('❌ MongoDB connection error:', err);
+            cachedDB = null; // Clear cache on error
         });
 
         mongoose.connection.on('disconnected', () => {
             console.log('⚠️  MongoDB disconnected');
+            cachedDB = null; // Clear cache on disconnect
         });
 
-        // Graceful shutdown
-        // Graceful shutdown (Not needed for serverless, usually for long running containers)
-        /*process.on('SIGINT', async () => {
-             await mongoose.connection.close();
-             console.log('MongoDB connection closed through app termination');
-             process.exit(0);
-        });*/
-
+        return cachedDB;
     } catch (error) {
         console.error('❌ Error connecting to MongoDB:', error.message);
-        // Do NOT exit process in serverless environment
-        // process.exit(1); 
+        cachedDB = null;
+        throw error; // Throw so the caller knows it failed
     }
 };
 

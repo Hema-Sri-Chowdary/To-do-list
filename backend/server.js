@@ -12,8 +12,20 @@ const taskRoutes = require('./routes/tasks');
 // Initialize express app
 const app = express();
 
-// Connect to database
-connectDB();
+// Middleware to ensure DB is connected before processing requests
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        console.error('Database connection middleware error:', error);
+        res.status(503).json({
+            success: false,
+            message: 'Database connection failed. Please try again in a moment.',
+            error: error.message
+        });
+    }
+});
 
 // Middleware - Allow all origins in development
 app.use(cors({
