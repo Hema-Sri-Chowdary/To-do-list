@@ -873,11 +873,26 @@ async function renderCompletedTasks(selectedDate = new Date()) {
     renderTasksList('completed-tasks-list', completedTasks);
 }
 
-async function renderPendingTasks(selectedDate = new Date()) {
+async function renderPendingTasks() {
     await fetchTasks();
-    renderDateSelector('pending-tasks-date-selector', (date) => renderPendingTasks(date), selectedDate);
 
-    const pendingTasks = tasks.filter(task => !task.completed && isSameDate(task.date, selectedDate));
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const pendingTasks = tasks
+        .filter(task => {
+            if (task.completed) return false;
+            if (!task.date) return false;
+            const [y, m, d] = task.date.split('-').map(Number);
+            const taskDate = new Date(y, m - 1, d);
+            return taskDate >= today;
+        })
+        .sort((a, b) => {
+            const dateA = new Date(`${a.date} ${a.time}`);
+            const dateB = new Date(`${b.date} ${b.time}`);
+            return dateA - dateB;
+        });
+
     renderTasksList('pending-tasks-list', pendingTasks);
 }
 
